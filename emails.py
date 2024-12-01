@@ -3,6 +3,7 @@ import base64
 import json
 from datetime import datetime
 from helper import get_next_day_date, get_current_date, join_non_empty_strings, extract_date_time_components
+from logger import logger
 
 #  proper functions to get and retreive details from email
 
@@ -29,11 +30,14 @@ def get_emails_in_date_range(service, start_date=get_current_date(), end_date=ge
         # Construct the query string for the date range
         query = f"after:{start_epoch} before:{end_epoch}"
 
+        logger.info(f"Started fetching email data for {
+                    start_date} to {end_date} ")
         # Get list of emails in the specified date range
         results = service.users().messages().list(userId="me", q=query).execute()
-
+        logger.info(f"Finished fetching email data for {
+                    start_date} to {end_date} ")
         email_details_list = []
-
+        logger.info(f"Starting to process fetched email data")
         # If messages are found
         if 'messages' in results:
             message_ids = results['messages']
