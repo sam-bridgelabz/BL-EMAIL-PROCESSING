@@ -84,6 +84,8 @@ def extract_email_details(service, message_id):
     bcc = next((header['value']
                for header in headers if header['name'] == 'Bcc'), "")
     email_info['to'] = join_non_empty_strings(to, cc, bcc)
+    email_info['email_link'] = f"https://mail.google.com/mail/u/0/#inbox/{
+        message_id}"
 
     date_string = next(
         (header['value'] for header in headers if header['name'] == 'Date'), "")

@@ -1,4 +1,17 @@
 from googleapiclient.errors import HttpError
+from helper import get_spreadsheet_file_name
+
+
+def create_sp_and_write_data(drive_service, sheet_service, spreadsheet_folder_id_dict, content_dict):
+    # to add spreadsheet from here
+    spreadsheet_id = create_spreadsheet_in_folder(
+        drive_service, spreadsheet_folder_id_dict, content_dict)
+
+    if isinstance(spreadsheet_id, dict):
+        return spreadsheet_id
+    else:
+        write_data_to_spreadsheet(
+            sheet_service, spreadsheet_id, content_dict, "Sheet1!A1")
 
 
 def create_spreadsheet_in_folder(drive_service, folder_id_dict, content_dict, spreadsheet_title="Spreadsheet Data"):
@@ -69,8 +82,8 @@ def write_data_to_spreadsheet(sheet_service, spreadsheet_id, data, link, range_n
     """
     try:
         # Specify the keys to include from the dictionary and set up headers
-        keys_to_include = ['from', 'to', 'date']
-        headers = keys_to_include + ['link']
+        keys_to_include = ['from', 'to', 'date', 'email_link']
+        headers = ['From', 'To', 'Date', 'Email Link']
 
         # Check if the spreadsheet already has data
         existing_data = sheet_service.spreadsheets().values().get(
@@ -79,8 +92,7 @@ def write_data_to_spreadsheet(sheet_service, spreadsheet_id, data, link, range_n
         ).execute()
 
         # Prepare the values to append
-        row_values = [[data.get(key, '')
-                       for key in keys_to_include] + [link or '']]
+        row_values = [[data.get(key, '') for key in keys_to_include]]
 
         # If the sheet is empty, prepend headers
         if 'values' not in existing_data or not existing_data['values']:

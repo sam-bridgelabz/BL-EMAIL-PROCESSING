@@ -78,7 +78,7 @@ def create_and_write_doc_in_folder(sheet_service, drive_service, docs_service, f
         return None
 
 
-def create_folder_in_drive(service, path, type):
+def create_folder_in_drive(service, path):
     folder_id = None
     current_year = str(datetime.now().year)
 
@@ -110,51 +110,77 @@ def create_folder_in_drive(service, path, type):
 
     # Step 2: Create Year Folder (e.g., 2024)
     year_folder_name = current_year
-    logger.info(f"Starting to create year --> {year_folder_name} folder")
-    year_folder_id = create_subfolder(service, year_folder_name, folder_id)
-    logger.info(f"Finished creating year --> {year_folder_name} folder")
+    year_folder_id = None
+    try:
+        query = f"name = 'Email_data@Bdlaz' and mimeType = 'application/vnd.google-apps.folder'"
+        results = service.files().list(
+            q=query,
+            spaces='drive',
+            fields="files(id, name)"
+        ).execute()
+        subfolders = results.get('files', [])
+        for folder in subfolders:
+            if folder['name'] == str(year_folder_name):
+                print(f"Year folder '{
+                      year_folder_name}' already exists with ID: {folder['id']}")
+                year_folder_id = folder['id']
+            else:
+                logger.info(
+                    f"Starting to create year --> {year_folder_name} folder")
+                year_folder_id = create_subfolder(
+                    service, year_folder_name, folder_id)
+                logger.info(
+                    f"Finished creating year --> {year_folder_name} folder")
+    except Exception as e:
+        logger.info(
+            "Problem in creating Year Folders")
 
     # Step 3: Loop through each month to create folders for the specified type
-    for month in range(1, 13):
-        month_str = str(month).zfill(2)  # Format month as a 2-digit string
-        month_folder_name = f"{month_str}_{current_year}"
-        logger.info(f"Starting to create --> {month_folder_name} folder")
-        # Create the month folder inside the year folder
-        month_folder_id = create_subfolder(
-            service, month_folder_name, year_folder_id)
-        logger.info(f"Finished creating  --> {month_folder_name} folder")
-        # Only create folders for the specified `type` (either "docs" or "spreadsheet")
-        if type == "docs":
-            logger.info("Starting to create --> docs folder")
-            docs_folder_id = create_subfolder(service, "docs", month_folder_id)
-            logger.info("Finished creating --> docs folder")
-            docs_day_folders = {}
-            start_date = datetime.now().replace(month=month, day=1)
-            end_date = (start_date.replace(month=start_date.month %
-                        # Last day of the month
-                                           12 + 1, day=1) - timedelta(days=1)).day
-            for day in range(1, end_date + 1):
-                day_folder_name = f"{str(day).zfill(2)}_{
-                    month_str}_{current_year}"
-                logger.info(
-                    f"Starting to create --> {day_folder_name} inside docs folder")
-                day_folder_id = create_subfolder(
-                    service, day_folder_name, docs_folder_id)
-                logger.info(
-                    f"Finished creating --> {day_folder_name} inside docs folder")
-                docs_day_folders[f"docs_day_{day}"] = day_folder_id
+    try:
+        # Query to list subfolders in 'Email_data@Bdlaz'
+        query = f"'{
+            year_folder_id}' in parents and mimeType = 'application/vnd.google-apps.folder'"
 
-            # Update the folder_dict with day-wise folder IDs for docs
-            folder_dict.update(docs_day_folders)
+        # Fetch the subfolders of the parent folder 'Email_data@Bdlaz'
+        results = service.files().list(
+            q=query,
+            spaces='drive',
+            fields="files(id, name)"
+        ).execute()
 
-        elif type == "spreadsheet":
-            # Only add the month folder ID for spreadsheets without day-wise subfolders
-            logger.info("Starting to create --> spreadsheet folder")
-            spreadsheet_folder_id = create_subfolder(
-                service, "spreadsheet", month_folder_id)
-            logger.info("Finished creating --> spreadsheet folder")
-            folder_dict[f"spreadsheet_{month_str}_{
-                current_year}"] = spreadsheet_folder_id
+        # Get the list of subfolders
+        year_subfolders = results.get('files', [])
+
+        for month in range(1, 13):
+            month_str = str(month).zfill(2)  # Format month as a 2-digit string
+            month_folder_name = f"{month_str}_{current_year}"
+
+            # Flag to track if the folder was found or created
+            folder_found = False
+
+            for folder in year_subfolders:
+                print("folder['name']", folder['name'], "\n")
+                if folder['name'] == month_folder_name:
+                    month_folder_id = folder['id']
+                    folder_found = True
+                    break
+            if not folder_found:
+                logger.info(
+                    f"Starting to create --> {month_folder_name} folder")
+                # Create the month folder inside the year folder
+                month_folder_id = create_subfolder(
+                    service, month_folder_name, year_folder_id)
+                logger.info(
+                    f"Finished creating  --> {month_folder_name} folder")
+    except Exception as E:
+        logger.info("Problem in creating Month Folders")
+
+    logger.info("Starting to create --> spreadsheet folder")
+    spreadsheet_folder_id = create_subfolder(
+        service, "spreadsheet", month_folder_id)
+    logger.info("Finished creating --> spreadsheet folder")
+    folder_dict[f"spreadsheet_{month_str}_{
+        current_year}"] = spreadsheet_folder_id
 
     return folder_dict
 
