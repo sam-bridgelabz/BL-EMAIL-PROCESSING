@@ -1,0 +1,71 @@
+# Python bytecode files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Environment variable files
+.env
+
+# VS Code settings
+.vscode/
+
+# IDE settings and backups
+.idea/
+*.swp
+*.swo
+
+# MySQL and SQLite database files
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# Coverage reports
+.coverage
+*.coverage
+coverage.xml
+nosetests.xml
+test-results.xml
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# C extensions
+*.so
+
+# Test and coverage reports
+*.test
+*.tox
+*.nox
+*.coverage
+*.hypothesis/
+
+# Docker files
+.docker/
+Dockerfile
+docker-compose.yml
+
+# Python wheels
+*.whl
+
+# Sphinx documentation
+docs/_build/
+
+# Other Python related files
+*.egg
+*.egg-info
+dist/
+# Ignore JSON files
+*.json
