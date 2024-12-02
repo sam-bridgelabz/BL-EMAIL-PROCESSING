@@ -18,6 +18,7 @@ from logger import logger
 
 if __name__ == "__main__":
     gmail_service, sheet_service, drive_service, doc_service = get_authenticated_services()
+    logger.info("Started services")
     data = get_emails_in_date_range(gmail_service, "2024/11/14", "2024/12/09")
     logger.info(f"Finished processing fetched email data")
     if isinstance(data, list):

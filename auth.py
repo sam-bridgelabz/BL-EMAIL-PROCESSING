@@ -3,6 +3,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from logger import logger
 
 
 def get_authenticated_services():
@@ -26,7 +27,8 @@ def get_authenticated_services():
         # Save the credentials for the next run
         with open("token.json", "w") as token:
             token.write(creds.to_json())
-
+    logger.info("OAuth Successfull")
+    logger.info("Starting services")
     gmail_service = build('gmail', 'v1', credentials=creds)
     sheets_service = build('sheets', 'v4', credentials=creds)
     drive_service = build("drive", "v3", credentials=creds)

@@ -96,14 +96,13 @@ def create_folder_in_drive(service, path):
             logger.info(f"Found Email_data@Bdlaz folder")
             folder_id = folders[0]['id']
         else:
-            logger.info(f"Creating Email_data@Bdlaz folder")
             file_metadata = {
                 'name': 'Email_data@Bdlaz',
                 'mimeType': 'application/vnd.google-apps.folder'
             }
             folder = service.files().create(body=file_metadata, fields='id').execute()
             folder_id = folder.get('id')
-            logger.info(f"Created Email_data@Bdlaz folder")
+            logger.info(f"Created folder --> Email_data@Bdlaz ")
 
     except Exception as e:
         raise e
@@ -121,16 +120,14 @@ def create_folder_in_drive(service, path):
         subfolders = results.get('files', [])
         for folder in subfolders:
             if folder['name'] == str(year_folder_name):
-                print(f"Year folder '{
-                      year_folder_name}' already exists with ID: {folder['id']}")
+                logger.info(f"Year folder '{
+                    year_folder_name}' already exists with ID: {folder['id']}")
                 year_folder_id = folder['id']
             else:
-                logger.info(
-                    f"Starting to create year --> {year_folder_name} folder")
                 year_folder_id = create_subfolder(
                     service, year_folder_name, folder_id)
                 logger.info(
-                    f"Finished creating year --> {year_folder_name} folder")
+                    f"Created folder --> {year_folder_name}")
     except Exception as e:
         logger.info(
             "Problem in creating Year Folders")
@@ -165,20 +162,17 @@ def create_folder_in_drive(service, path):
                     folder_found = True
                     break
             if not folder_found:
-                logger.info(
-                    f"Starting to create --> {month_folder_name} folder")
                 # Create the month folder inside the year folder
                 month_folder_id = create_subfolder(
                     service, month_folder_name, year_folder_id)
                 logger.info(
-                    f"Finished creating  --> {month_folder_name} folder")
+                    f"Created folder --> {month_folder_name}")
     except Exception as E:
         logger.info("Problem in creating Month Folders")
 
-    logger.info("Starting to create --> spreadsheet folder")
     spreadsheet_folder_id = create_subfolder(
         service, "spreadsheet", month_folder_id)
-    logger.info("Finished creating --> spreadsheet folder")
+    logger.info(" Created folder --> spreadsheet ")
     folder_dict[f"spreadsheet_{month_str}_{
         current_year}"] = spreadsheet_folder_id
 
